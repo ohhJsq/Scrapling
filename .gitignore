@@ -1,110 +1,16 @@
-# local files
-site/*
-local_tests/*
-.mcpregistry_*
-
-# AI related files
-.claude/*
-CLAUDE.md
-
-# cached files
-__pycache__/
-*.py[cod]
-.cache
-.DS_Store
-*~
-.*.sw[po]
-.build
-.ve
+# 环境变量配置文件（包含敏感信息）
 .env
-.pytest
-.benchmarks
-.bootstrap
-.appveyor.token
+
+# 数据目录（包含用户数据和凭证）
+hermes_data/
+
+# Docker
+*.log
+
+# 备份文件
+*.tar.gz
 *.bak
-*.db
-*.db-*
 
-# installation package
-*.egg-info/
-dist/
-build/
-
-# environments
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# C extensions
-*.so
-
-# pycharm
+# IDE
+.vscode/
 .idea/
-
-# vscode
-*.code-workspace
-
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-.eggs
-parts
-bin
-var
-sdist
-wheelhouse
-develop-eggs
-.installed.cfg
-lib
-lib64
-venv*/
-.venv*/
-pyvenv*/
-pip-wheel-metadata/
-poetry.lock
-
-# Installer logs
-pip-log.txt
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-mypy.ini
-
-# test caches
-.tox/
-.pytest_cache/
-.coverage
-htmlcov
-report.xml
-nosetests.xml
-coverage.xml
-
-# Translations
-*.mo
-
-# Buildout
-.mr.developer.cfg
-
-# IDE project files
-.project
-.pydevproject
-.idea
-*.iml
-*.komodoproject
-
-# Complexity
-output/*.html
-output/*/index.html
-
-# Sphinx
-docs/_build
-public/
-web/

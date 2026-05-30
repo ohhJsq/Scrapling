@@ -1,0 +1,65 @@
+services:
+  hermes-agent:
+    image: ${HERMES_AGENT_IMAGE:-nousresearch/hermes-agent:latest}
+    container_name: ${HERMES_AGENT_CONTAINER_NAME:-hermes-agent}
+    volumes:
+      - ${HERMES_DATA_DIR:-./hermes_data}:/home/agent/.hermes
+      - hermes-agent-src:/opt/hermes
+    environment:
+      - HERMES_HOME=/home/agent/.hermes
+      - TZ=${TZ:-Asia/Shanghai}
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    ports:
+      - "8642-8670:8642-8670"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8642/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - hermes-network
+
+  hermes-webui:
+    image: ${WEBUI_IMAGE:-ekkoye8888/hermes-web-ui:latest}
+    container_name: ${WEBUI_CONTAINER_NAME:-hermes-webui}
+    entrypoint: ["node", "dist/server/index.js"]
+    depends_on:
+      hermes-agent:
+        condition: service_started
+    ports:
+      - "${PORT:-6060}:${PORT:-6060}"
+    volumes:
+      - ${HERMES_DATA_DIR:-./hermes_data}:/home/agent/.hermes
+      - ${HERMES_DATA_DIR:-./hermes_data}/hermes-web-ui:/home/agent/.hermes-web-ui
+      - hermes-agent-src:/opt/hermes
+    environment:
+      - PORT=${PORT:-6060}
+      - HERMES_HOME=/home/agent/.hermes
+      - HERMES_BIN=${HERMES_BIN:-/opt/hermes/.venv/bin/hermes}
+      - AUTH_DISABLED=${AUTH_DISABLED:-false}
+      - AUTH_TOKEN=${AUTH_TOKEN:-}
+      - HERMES_ALLOW_ROOT_GATEWAY=${HERMES_ALLOW_ROOT_GATEWAY:-1}
+      - TZ=${TZ:-Asia/Shanghai}
+      - PATH=/opt/hermes/.venv/bin:/opt/data/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - UPLOAD_DIR=${UPLOAD_DIR:-/tmp/hermes-web-ui-uploads}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-6060}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - hermes-network
+
+volumes:
+  hermes-agent-src:
+    driver: local
+
+networks:
+  hermes-network:
+    driver: bridge
