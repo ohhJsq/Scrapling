@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraper - 智能爬虫工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px 30px;
+            color: white;
+        }
+        
+        .card-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        
+        .form-group label span {
+            font-weight: 400;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e1e5eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .mode-option {
+            position: relative;
+        }
+        
+        .mode-option input {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .mode-option label {
+            display: block;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e1e5eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .mode-option label .icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .mode-option label .name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .mode-option input:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 16px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            border-top: 2px solid #e1e5eb;
+            padding-top: 30px;
+        }
+        
+        .results-section h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .result-card h4 {
+            font-size: 0.95rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .result-card .count {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .result-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result-item {
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #333;
+            word-break: break-all;
+        }
+        
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .success-message {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .help-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .example-tag {
+            background: #e9ecef;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-tag:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .selector-hint {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .selector-hint code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .mode-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🕷️ Web Scraper</h1>
+            <p>基于 Scrapling 的智能网页爬虫工具 - 输入网址和选择器，轻松获取数据</p>
+        </header>
+        
+        <div class="main-card">
+            <div class="card-header">
+                <h2>📥 爬取配置</h2>
+            </div>
+            <div class="card-body">
+                <form id="scrapeForm">
+                    <div class="form-group">
+                        <label>目标网址</label>
+                        <input type="text" id="url" placeholder="https://example.com 或 example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            选择器 / 数据描述
+                            <span>(支持 CSS 选择器、XPath、文本搜索)</span>
+                        </label>
+                        <textarea id="selectors" placeholder="输入选择器，每行一个，例如：
+.article-title
+.product-name
+.price::text
+//div[@class='content']/text()
+text:评论" required></textarea>
+                        <p class="help-text">支持多种选择器格式：</p>
+                        <div class="examples">
+                            <span class="example-tag" onclick="addExample('.title')">.title</span>
+                            <span class="example-tag" onclick="addExample('#content')">#content</span>
+                            <span class="example-tag" onclick="addExample('h1::text')">h1::text</span>
+                            <span class="example-tag" onclick="addExample('img::attr(src)')">img::attr(src)</span>
+                            <span class="example-tag" onclick="addExample('//div/p')">//div/p (XPath)</span>
+                            <span class="example-tag" onclick="addExample('text:关键词')">text:关键词</span>
+                        </div>
+                        <div class="selector-hint">
+                            💡 <strong>提示：</strong> 点击上方标签快速添加选择器，或使用"分析页面"功能自动获取可用选择器
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>爬取模式</label>
+                        <div class="mode-selector">
+                            <div class="mode-option">
+                                <input type="radio" name="mode" id="mode-fast" value="fast" checked>
+                                <label for="mode-fast">
+                                    <span class="icon">⚡</span>
+                                    <span class="name">快速模式</span>
+                                </label>
+                            </div>
+                            <div class="mode-option">
+                                <input type="radio" name="mode" id="mode-stealth" value="stealth">
+                                <label for="mode-stealth">
+                                    <span class="icon">🥷</span>
+                                    <span class="name">隐身模式</span>
+                                </label>
+                            </div>
+                            <div class="mode-option">
+                                <input type="radio" name="mode" id="mode-dynamic" value="dynamic">
+                                <label for="mode-dynamic">
+                                    <span class="icon">🌐</span>
+                                    <span class="name">动态模式</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" id="scrapeBtn">
+                            <span>🚀</span> 开始爬取
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="analyzeBtn">
+                            <span>🔍</span> 分析页面
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="message"></div>
+                
+                <div class="results-section" id="resultsSection" style="display: none;">
+                    <h3>📊 爬取结果</h3>
+                    <div id="results"></div>
+                </div>
+                
+                <div class="results-section" id="analyzeSection" style="display: none;">
+                    <h3>🔍 页面元素分析</h3>
+                    <div id="analyzeResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('scrapeForm');
+        const scrapeBtn = document.getElementById('scrapeBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const messageDiv = document.getElementById('message');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsDiv = document.getElementById('results');
+        const analyzeSection = document.getElementById('analyzeSection');
+        const analyzeResults = document.getElementById('analyzeResults');
+        
+        function addExample(selector) {
+            const textarea = document.getElementById('selectors');
+            if (textarea.value && !textarea.value.endsWith('\n')) {
+                textarea.value += '\n';
+            }
+            textarea.value += selector;
+        }
+        
+        function showMessage(html, isError = false) {
+            messageDiv.innerHTML = `<div class="${isError ? 'error-message' : 'success-message'}">${html}</div>`;
+            messageDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function clearMessage() {
+            messageDiv.innerHTML = '';
+        }
+        
+        function setLoading(loading) {
+            scrapeBtn.disabled = loading;
+            analyzeBtn.disabled = loading;
+            if (loading) {
+                scrapeBtn.innerHTML = '<span class="spinner"></span> 爬取中...';
+            } else {
+                scrapeBtn.innerHTML = '<span>🚀</span> 开始爬取';
+            }
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const url = document.getElementById('url').value.trim();
+            const selectors = document.getElementById('selectors').value.trim().split('\n').filter(s => s);
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            
+            if (!url) {
+                showMessage('请输入网址', true);
+                return;
+            }
+            
+            if (!selectors.length) {
+                showMessage('请输入至少一个选择器', true);
+                return;
+            }
+            
+            clearMessage();
+            resultsSection.style.display = 'none';
+            analyzeSection.style.display = 'none';
+            setLoading(true);
+            
+            try {
+                const response = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, selectors, mode })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `<p><strong>✓ ${data.message}</strong></p>`;
+                    html += `<p><strong>页面标题：</strong>${data.title}</p>`;
+                    html += `<p><strong>爬取模式：</strong>${data.mode}</p>`;
+                    showMessage(html);
+                    
+                    let resultsHtml = '';
+                    for (const [key, result] of Object.entries(data.results)) {
+                        resultsHtml += `
+                            <div class="result-card">
+                                <h4>选择器: ${result.selector} (${result.type})</h4>
+                                <p class="count">共 ${result.count} 条数据</p>
+                                <div class="result-list">
+                                    ${result.data.map(item => `<div class="result-item">${item || '(空)'}</div>`).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    resultsDiv.innerHTML = resultsHtml;
+                    resultsSection.style.display = 'block';
+                } else {
+                    showMessage(`❌ ${data.error}`, true);
+                }
+            } catch (error) {
+                showMessage(`❌ 请求失败: ${error.message}`, true);
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        analyzeBtn.addEventListener('click', async () => {
+            const url = document.getElementById('url').value.trim();
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            
+            if (!url) {
+                showMessage('请输入网址', true);
+                return;
+            }
+            
+            clearMessage();
+            resultsSection.style.display = 'none';
+            analyzeSection.style.display = 'none';
+            setLoading(true);
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, mode })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`✓ 页面分析完成，标题：${data.title}`);
+                    
+                    let html = '<p style="margin-bottom: 15px;">点击推荐选择器即可添加到上方输入框：</p>';
+                    html += '<div style="display: grid; gap: 10px;">';
+                    
+                    data.elements.forEach(elem => {
+                        const selector = elem.suggested_selector.replace(/"/g, '&quot;');
+                        html += `
+                            <div class="result-card" style="cursor: pointer;" onclick="addExample('${selector}')">
+                                <h4>&lt;${elem.tag}&gt; ${selector}</h4>
+                                <p class="count">${elem.class ? 'class: ' + elem.class : ''} ${elem.id ? 'id: ' + elem.id : ''}</p>
+                                <div class="result-item">${elem.text || '(无文本)'}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    analyzeResults.innerHTML = html;
+                    analyzeSection.style.display = 'block';
+                } else {
+                    showMessage(`❌ ${data.error}`, true);
+                }
+            } catch (error) {
+                showMessage(`❌ 请求失败: ${error.message}`, true);
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>
